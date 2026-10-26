@@ -22,3 +22,16 @@ npm -v
 5. `php artisan ui bootstrap` ud download config buat bootstrap ny tpi packages ny sendiri blom di download. Run `npm install && npm install axios`(file bootstrap.js perlu axios) buat download packages ny.
 
 6. Done.
+
+## Basic CRUD Web App | Tasks Manager
+1. First thing to do when making a CRUD (noun) app is making a DB Model for the app to CRUD (verb).  
+Run: `php artisan make:model Task --migration --factory --seed`  
+
+| Command/Flag | Shit |
+| --- | --- |
+| `php artisan make:model` | Use artisan to make the DB Model |
+| Task | nama Model ny |
+| `--migration` | Automatically make the migration for the model |
+| `--factory` | Automatically make the factory for the model |
+| `--seed` | Automatically make the seeder for the model |
+
