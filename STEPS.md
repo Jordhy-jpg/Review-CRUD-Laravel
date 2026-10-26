@@ -23,6 +23,8 @@ npm -v
 
 6. Run `php artisan serve` buat make sure the app works. Welcome page ny may or may not look a lil fucked up but that's fine we're not gonna use that shi anyway yg penting g ad error dlu. Kebetulan Laravel skrg itu an "agent first" web framework whatever the hell that means basically laravel skrg di optimize utk vibe coding with maximum efficiency jd klo ad error di kanan atas ad 'Copy as Markdown'. Copy itu aj trus kasih ke codex jgn tny w w hantem lu
 
+> Note: Project ini pake DB ny sqlite doank soalny w g mau download fuckass xampp ygy. W td nyoba setting .env buat point the DB xampp itu g susah ko tinggal ini itu done slsai ez kn
+
 ## Basic CRUD Web App | Tasks Manager
 1. First thing to do when making a CRUD (noun) app is making a DB Model for the app to CRUD (verb).  
 Run: `php artisan make:model Task --migration --factory --seed`  
@@ -92,3 +94,155 @@ return new class extends Migration
 ```
 
 Klo uda: `php artisan migrate`
+
+3. Klo entity DB ny ud kelar, selanjutny kt bikin controller ny. Good rule of thumb itu basically buat 1 controller buat setiap DB model yg lu bikin. Kt cuma ad 1 jd kt bikin 1 aj: `php artisan make:controller TaskController --model=Task --resource`
+
+| Command/Flag | Shit |
+| --- | --- |
+| `php artisan make:controller` | Use artisan to make the Controller |
+| TaskController | nama Controller ny. Naming convention laravel itu <nama class DB Model ny>+Controller |
+| `--model=Task` | Explicitly state the related Model for this Controller |
+| `--resource` | Automatically create boilerplates for basic CRUD functions (index, create, store, etc. klo misal flag ini di laravel binus g bisa ya gg lah ketik sndiri aj g susah kok) |
+
+The Controller (ideally) should control everything concerning the Model it's related to, including (but not limited to) rendering views and backend operations/logic. Which requests go to which method is controlled by the router (`routes/web.php`). We'll take care of the controller methods (`app/Http/Controllers/TaskController.php`) first:
+
+> Fair warning: Convention convention laravel itu agk autistic ygy jd good practice laravel itu lu pny 2 method per operation yg ad logic ny: 1 buat render view ny (contoh: create, edit) and 1 more buat actual operation ny (contoh: store, update)
+
+```php
+class TaskController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $tasks = Task::latest()->get();
+        // Klo mo ambil bbrp doank:
+        // $tasks = Task::latest()->take(<bbrp>)->get();
+
+        return view("index", compact("tasks")); // compact itu buat pass sebuah variable ke dlm view/template ny. Compact itu infer variable yg di pass berdasarkan nama jd hrs bener. Klo variable ny $ihatelaravel compact ny itu variable ny tp g ad '$' ny (compact('ihatelaravel')) 
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view("create");
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
+            'completed' => ['boolean']
+        ]); // Td kn w ad bilang kt g set data types ny di class Model ny grgr itu bakal diatur ama DB table and controller ny, y jd ini tu itu y. Kt control pake function validate(). Notice function validate itu ngambil 1 argument yaitu array. Isi array ny itu kyk dictionary dmn key ny itu nama attribute/variable ('title', 'description', 'completed') ny trus value ny itu array yg isiny argument yg kt bakal pake buat validate request ny ('required', 'string', 'nullable', etc.). Klo lu tanya knp yg ini pake => and not -> ya basically -> itu buat access isi dri sebuah variable jd misal task kn ad title jd klo mo access title ny itu $task->title klo => itu lowk i have no clue basically yg g pake -> itu pake => ud gt aj
+
+        Task::create($validated);
+
+        return redirect()->route('index');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Task $task)
+    {
+        // Ini tu method buat show individual resource alias 1 page buat showcase 1 task doank. 
+        // Sbnrny g penting buat project kt tp klo lu penasaran kode ny kyk gini doank
+        return view('show', compact('task'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Task $task)
+    {
+        return view('edit', compact('task'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
+            'completed' => ['boolean']
+        ]);
+
+        $task->update($validated);
+
+        return redirect()->route('index');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function delete(Task $task) // ini awalny destroy tp w ganti delete jd lbh consistent
+    {
+        $task->delete();
+
+        return redirect()->route('index');
+    }
+
+    public function markAsComplete(Task $task) // ini function custom kt bikin sndiri
+    {
+        $task->update([
+            'completed' => true
+        ]);
+
+        return redirect()->route('index');
+    }
+}
+```
+
+Skrg routing (`routes/web.php`)
+
+```php
+use App\Http\Controllers\TaskController;
+
+Route::get('/', function () {
+    return view('welcome');
+}); // Route yg ini ama `resources/views/welcome.blade.php` delete aj kt g pake
+
+Route::get('/', [TaskController::class, 'index'])
+    ->name('index');
+
+Route::get('/create', [TaskController::class, 'create'])
+    ->name('create');
+
+Route::post('/create/store', [TaskController::class, 'store'])
+    ->name('store');
+
+// Route::get('/show/{task}', [TaskController::class,'show'])
+// ->name('show');
+
+Route::get('/edit/{task}', [TaskController::class, 'edit'])
+    ->name('edit');
+
+Route::put('/edit/update/{task}', [TaskController::class, 'update'])
+    ->name('update');
+
+Route::delete('/delete/{task}', [TaskController::class, 'delete'])
+    ->name('delete');
+
+Route::patch('edit/markAsComplete/{task}', [TaskController::class, 'markAsComplete'])
+    ->name('markAsComplete');
+```
+
+| HTTP Method | Purpose | Task example |
+|---|---|---|
+| GET | Read data or display a page without changing data. | List tasks or display a form. |
+| POST | Submit data, commonly to create a new resource. | Save a new task. |
+| PUT | Conventionally replace an entire resource. | Submit a task's complete set of editable fields. |
+| PATCH | Update part of a resource. | Change only a task's completion status. |
+| DELETE | Remove a resource. | Delete a task. |
+
+> Laravel does not automatically enforce full replacement for PUT or partial updates for PATCH; your controller determines how submitted fields are handled.  
+> HTML forms support only GET and POST. For PUT, PATCH, or DELETE, use method="POST" with Blade's @method('PUT'), @method('PATCH'), or @method('DELETE'). Include @csrf in all forms that change data.
