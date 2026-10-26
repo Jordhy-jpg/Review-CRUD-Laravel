@@ -100,7 +100,7 @@ Klo uda: `php artisan migrate`
 | Command/Flag | Shit |
 | --- | --- |
 | `php artisan make:controller` | Use artisan to make the Controller |
-| TaskController | nama Controller ny. Naming convention laravel itu <nama class DB Model ny>+Controller |
+| TaskController | nama Controller ny. Naming convention laravel itu (nama class DB Model ny)+Controller |
 | `--model=Task` | Explicitly state the related Model for this Controller |
 | `--resource` | Automatically create boilerplates for basic CRUD functions (index, create, store, etc. klo misal flag ini di laravel binus g bisa ya gg lah ketik sndiri aj g susah kok) |
 
