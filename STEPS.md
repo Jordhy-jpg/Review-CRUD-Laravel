@@ -246,3 +246,7 @@ Route::patch('edit/markAsComplete/{task}', [TaskController::class, 'markAsComple
 
 > Laravel does not automatically enforce full replacement for PUT or partial updates for PATCH; your controller determines how submitted fields are handled.  
 > HTML forms support only GET and POST. For PUT, PATCH, or DELETE, use method="POST" with Blade's @method('PUT'), @method('PATCH'), or @method('DELETE'). Include @csrf in all forms that change data.
+
+## Backend uda slsai
+Skrg mulai bikin view ny/web page ny. Kt kn pake bootstrap tp w g tau pasti botstrap lu org version brp jd check pake `npm list bootstrap` trus buka documentation bootstrap buat version yg bener. Versi bootstrap w itu `bootstrap@5.3.8` jd w pake v5.3  
+> I ain't writing the HTML in here so be a good boy/girl and look inside `resources/views` yourself
