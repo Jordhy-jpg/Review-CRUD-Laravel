@@ -205,7 +205,7 @@ class TaskController extends Controller
 Skrg routing (`routes/web.php`)
 
 ```php
-use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskController; // jgn lupa import controller yg bakal dipake
 
 Route::get('/', function () {
     return view('welcome');
