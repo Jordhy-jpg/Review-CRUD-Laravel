@@ -41,14 +41,13 @@ class TaskController extends Controller
         return redirect()->route('index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Task $task)
-    {
-        // Ini tu method buat show individual resource alias 1 page buat showcase 1 task doank. Sbnrny g penting buat project kt tp klo lu penasaran kode ny kky begini doank
-        return view('show', compact('task'));
-    }
+    // /**
+    //  * Display the specified resource.
+    //  */
+    // public function show(Task $task)
+    // {
+    //     return view('show', compact('task'));
+    // }
 
     /**
      * Show the form for editing the specified resource.

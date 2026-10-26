@@ -54,13 +54,30 @@ class Task extends Model
         'title',
         'description',
         'completed'
-    ]; // $fillable itu eloquent (ORM ny laravel) convention yg ngedefine attribute dri model yg bs di assign secara manual oleh user (contoh: pake form). Knp perlu ini karena ad bbrp case dmn sebaikny kt enggk ksh user define attribute sebuah model (contoh: klo misal kt bikin User sbg FK dri Task (User--> has many of--> Task) kt g mau user bs manually define user mana yg bikin sebuah task. Seharusnya otomatis user yg buat task ny adl user yg jd FK task ny. Kt g ush setting data type ny di sini soalny itu di atur ama table DB & controller ny 
+    ]; 
+    /**
+     * $fillable itu eloquent (ORM ny laravel) convention yg ngedefine attribute dri model yg bs di assign secara manual oleh user (contoh: pake form method post html). 
+     * Knp perlu ini karena ad bbrp case dmn sebaikny kt jangan ksh user manually define attribute sebuah model 
+     * (contoh: klo misal kt bikin User sbg FK dri Task (User--> has many of--> Task) kt g mau user bs manually define user mana yg bikin sebuah task. 
+     * Seharusnya otomatis user yg buat task ny adl user yg jd FK task ny.)
+     * Kt g ush setting data type ny di sini soalny itu di atur ama table DB & controller ny 
+     */
 
     protected $casts = [
         'completed' => 'boolean'
-    ]; // Ini w rasa g penting tpi good to know aj. $casts itu eloquent convention jg dmn kt pastiin sebuah attribute direturn dlm php compatible format (contoh: tergantung pake DB apa sebuah boolean bs di return sbg true/false True/False 1/0. $casts ini make sure klo attribute completed itu direturn dlm format boolean ny php alias true/false)
+    ];
+    /**
+     * Ini w rasa g penting tpi good to know aj. $casts itu eloquent convention jg dmn kt pastiin sebuah attribute direturn dlm php compatible format 
+     * (contoh: tergantung pake DB apa sebuah boolean bs di return sbg true/false True/False 1/0. 
+     * $casts ini make sure klo attribute completed itu direturn dlm format boolean ny php alias true/false)
+     */
 
-    // Notice dua dua ny itu protected krn kt g mau something yg g related or worse: malicious bs access and/or change value dr attribute tsb. Why not private? Class ini msh harus bs diaccess ama Eloquent buat dia ngatur relationship antara PHP ama DB ny. Klo protected msh bs diaccess ama parent/child classes ny. Grgr Task extends Model dmn Model itu sebuah Class Eloquent, Eloquent bs pake. Klo private cm bs diaccess di dlm class sndiri jd Eloquent g bs pegang but if you wanna deal with the complex SQL to manage the data yourself go ahead --_--
+    /**
+     * Notice dua dua ny itu protected krn kt g mau something yg g related or worse: malicious bs access and/or change value dr attribute tsb. 
+     * Why not private? Class ini msh harus bs diaccess ama Eloquent buat dia ngatur relationship antara PHP ama DB ny. 
+     * Klo protected msh bs diaccess ama parent/child classes ny. Grgr Task extends Model dmn Model itu sebuah Class Eloquent, Eloquent bs pake. 
+     * Klo private cm bs diaccess di dlm class sndiri jd Eloquent g bs pegang but if you wanna deal with the complex SQL to manage the data yourself go ahead --_--
+     */
 }
 ```
 
@@ -89,7 +106,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('tasks');
-    } // ignore this for now. Ini basically function yg bakal di execute klo kt mau rollback migrate ny
+    } // ignore this. Ini basically function yg bakal di execute klo kt mau rollback migrate ny.
 };
 ```
 
@@ -120,7 +137,9 @@ class TaskController extends Controller
         // Klo mo ambil bbrp doank:
         // $tasks = Task::latest()->take(<bbrp>)->get();
 
-        return view("index", compact("tasks")); // compact itu buat pass sebuah variable ke dlm view/template ny. Compact itu infer variable yg di pass berdasarkan nama jd hrs bener. Klo variable ny $ihatelaravel compact ny itu variable ny tp g ad '$' ny (compact('ihatelaravel')) 
+        return view("index", compact("tasks")); // compact itu buat pass sebuah variable ke dlm view/template ny.
+        // Compact itu infer variable yg di pass berdasarkan nama jd hrs bener. 
+        // Klo variable ny $ihatelaravel compact ny itu nama variable ny tp g ad '$' ny (compact('ihatelaravel')) 
     }
 
     /**
@@ -140,22 +159,29 @@ class TaskController extends Controller
             'title' => ['required', 'string'],
             'description' => ['nullable', 'string'],
             'completed' => ['boolean']
-        ]); // Td kn w ad bilang kt g set data types ny di class Model ny grgr itu bakal diatur ama DB table and controller ny, y jd ini tu itu y. Kt control pake function validate(). Notice function validate itu ngambil 1 argument yaitu array. Isi array ny itu kyk dictionary dmn key ny itu nama attribute/variable ('title', 'description', 'completed') ny trus value ny itu array yg isiny argument yg kt bakal pake buat validate request ny ('required', 'string', 'nullable', etc.). Klo lu tanya knp yg ini pake => and not -> ya basically -> itu buat access isi dri sebuah variable jd misal task kn ad title jd klo mo access title ny itu $task->title klo => itu lowk i have no clue basically yg g pake -> itu pake => ud gt aj
+        ]);
+        /**
+         * Td kn w ad bilang kt g set data types ny di class Model ny grgr itu bakal diatur ama DB table and controller ny, y jd ini tu itu y. 
+         * Kt control pake function validate(). Notice function validate itu ngambil 1 argument yaitu array. Isi array ny itu kyk dictionary dmn 
+         * key ny itu nama attribute/variable ('title', 'description', 'completed') ny trus value ny itu array yg isiny argument yg kt bakal pake buat validate request ny ('required', 'string', 'nullable', etc.). 
+         * Klo lu tanya knp yg ini pake => and not -> ya basically -> itu buat access isi dri sebuah variable jd misal task kn ad title jd klo mo access title ny itu $task->title 
+         * klo => itu lowk i have no clue basically yg g pake -> itu pake => ud gt aj
+         */
 
         Task::create($validated);
 
         return redirect()->route('index');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Task $task)
-    {
-        // Ini tu method buat show individual resource alias 1 page buat showcase 1 task doank. 
-        // Sbnrny g penting buat project kt tp klo lu penasaran kode ny kyk gini doank
-        return view('show', compact('task'));
-    }
+    // /**
+    //  * Display the specified resource.
+    //  */
+    // public function show(Task $task)
+    // {
+    //     // Ini tu method buat show individual resource alias 1 page buat showcase 1 task doank. 
+    //     // Sbnrny g penting buat project kt tp klo lu penasaran kode ny kyk gini doank
+    //     return view('show', compact('task'));
+    // }
 
     /**
      * Show the form for editing the specified resource.
@@ -184,7 +210,7 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function delete(Task $task) // ini awalny destroy tp w ganti delete jd lbh consistent
+    public function delete(Task $task) // ini awalny destroy tp w ganti jd delete biar lbh consistent
     {
         $task->delete();
 
@@ -222,6 +248,7 @@ Route::post('/create/store', [TaskController::class, 'store'])
 
 // Route::get('/show/{task}', [TaskController::class,'show'])
 // ->name('show');
+// ini buat function show td yg g kepake tp klo lu penasaran, code ny begini doank
 
 Route::get('/edit/{task}', [TaskController::class, 'edit'])
     ->name('edit');
